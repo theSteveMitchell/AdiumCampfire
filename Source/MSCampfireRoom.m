@@ -11,11 +11,13 @@
 
 @implementation MSCampfireRoom
 
+
 - (MSCampfireRoom *)initWithUID:(NSInteger)anUID
 {
   if ((self = [super init])) {
     contactUIDs = [[NSMutableArray alloc] init];
     uid = anUID;
+    usersByUID = [[NSDictionary alloc] init];
   }
   return self;
 }
@@ -30,6 +32,12 @@
 {
   [contactUIDs addObject:[NSNumber numberWithInteger:anUID]];
 }
+
+- (void)removeContactWithUID:(NSInteger)toRemove
+{
+    [contactUIDs removeObject:[NSNumber numberWithInteger:toRemove]];
+}
+
 
 - (NSArray *)contactUIDs
 {

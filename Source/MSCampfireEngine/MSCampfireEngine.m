@@ -42,8 +42,8 @@
 
 - (MSCampfireEngine *)initWithDomain:(NSString *)domain key:(NSString *)key delegate:(NSObject *)newDelegate 
 {
-  AILog(@"initWithDomain");
-  AILog(@"%@: %@ %@", self, domain, key);
+  AILogWithSignature(@"initWithDomain");
+  AILogWithSignature(@"%@: %@ %@", self, domain, key);
   if ((self = [super init])) {
     delegate = newDelegate;
     _secureConnection = YES;

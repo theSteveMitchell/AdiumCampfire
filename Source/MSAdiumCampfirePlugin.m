@@ -18,4 +18,9 @@
   [MSCampfireService registerService];
 }
 
+- (void)uninstallPlugin
+{
+    
+}
+
 @end
