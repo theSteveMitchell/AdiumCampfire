@@ -22,9 +22,11 @@
 #import <Adium/AIContactObserverManager.h>
 #import <Adium/AISharedAdium.h>
 #import <Adium/AIContentMessage.h>
-
+#import <objc/runtime.h>
 
 @implementation MSCampfireAccount
+
+static char urlContact;
 
 - (void)initAccount
 {
@@ -44,14 +46,6 @@
   if (!self.host && self.defaultServer) {
     [self setPreference:self.defaultServer forKey:KEY_CONNECT_HOST group:GROUP_ACCOUNT_STATUS];
   }
-    
-//    [adium.contactController existingBookmarkForChatName:[roomId stringValue]
-  //                                             onAccount:self
-    //                                    chatCreationInfo:nil];
-    //AIListGroup* group = [adium.contactController groupWithUID:@"Campfire"];
-//    NSArray *groupMembers = [group containedObjects];
-    
-    //[adium.contactController removeListObjects:groupMembers];
      
   AILogWithSignature(@"Initialized CampFire domain %@", self.UID);
 }
@@ -75,7 +69,9 @@
 	[super connect];
     
   [self setConnectionProgress:[NSNumber numberWithDouble:0.3] message:@"Connecting"];
+
   [engine release]; engine = nil;
+
   engine = [[MSCampfireEngine alloc] initWithDomain:self.UID key:self.passwordWhileConnected delegate:self];
   
   [engine getInformationForAuthenticatedUser];
@@ -102,8 +98,7 @@
   chat.hideUserIconAndStatus = YES;
   // That fucker is setting status to "Active"!
   [chat setValue:[NSNumber numberWithBool:YES] forProperty:@"Account Joined" notify:NotifyNow];
-  
-	return [chat isGroupChat];
+  return [chat isGroupChat];
 }
 
 - (BOOL)groupChatsSupportTopic {
@@ -126,29 +121,16 @@
 	AIChat *chat = [notification object];
     AILogWithSignature(@"chatDidOpen: %@", chat);
 	if(chat.isGroupChat && chat.account == self) {
+
+        if (!chat.chatContainer.chatViewController.userListVisible) {
+            [chat.chatContainer.chatViewController toggleUserList]; 
+        }	
+        [engine getRoomInformationFor:[chat.uniqueChatID integerValue]];
         AILogWithSignature(@"trying to join room : %@", chat.name);
-		[self updateCampfireChat:chat];
         [engine joinRoom:[chat.identifier integerValue]];
     }
 }
 
-/*!
- * @brief Chat for a room 
- *
- * If the room chat is not already active, it is created.
- */
-- (AIChat *)chatWithName:(NSString *)name
-{
-    AILogWithSignature(@"chat for room: %@", name);
-	AIChat *chat = [adium.chatController existingChatWithName:name onAccount:self];
-    if (!chat) {
-      chat = [adium.chatController chatWithName:name
-                                     identifier:nil
-                                      onAccount:self
-                               chatCreationInfo:nil];
-  }
-  return chat;
-}
 
 /*!
  * @brief Update the room chat
@@ -158,36 +140,12 @@
 - (void)updateCampfireChat:(AIChat *)campfireChat
 {
   AILogWithSignature(@"chat room updated %@", campfireChat);
-  
-	// Enable the user list on the chat.
-	if (!campfireChat.chatContainer.chatViewController.userListVisible) {
-		[campfireChat.chatContainer.chatViewController toggleUserList]; 
-	}	
-	
-	// Update the participant list.
-//  AIListContact *contact = [self contactWithUID:@"alamakota"];
-//  if (!contact) {
-//    contact = [[AIListContact alloc] initWithUID:@"alamakota" service:[self service]];
-//    [self addContact:contact toGroup:nil];
-//  }
-  
-//  AILogWithSignature(@"Setting topic for chat %@", campfireChat);
-//  [campfireChat setTopic:@"Ala ma kota!"];
-
-  MSCampfireRoom *room = [_rooms objectForKey:[campfireChat identifier]];
-  for (NSNumber *uid in [room contactUIDs]) {
-      //TODO: what if they're already there?
-      if(![self contactWithUID:[uid stringValue]]) {
-          [campfireChat addParticipatingListObject:[self contactWithUID:[uid stringValue]] notify:NotifyNow];
-      }
-  }
 }
 
 - (BOOL)sendMessageObject:(AIContentMessage *)inContentMessage
 {
   NSString *roomName = inContentMessage.chat.name;
   [engine sendTextMessage:inContentMessage.encodedMessage toRoom:[roomName integerValue]];
-  // inContentMessage.displayContent = NO;
 
   return YES;
 }
@@ -212,8 +170,6 @@
     
     NSArray *roomArray = [rooms objectForKey:@"rooms"];
     
-    [_rooms release];
-    _rooms = [[NSMutableDictionary alloc] init];
       if([roomArray count] > 0) {
           AIListGroup* campfireGroup = [adium.contactController groupWithUID:@"Campfire"];
           if(campfireGroup) {
@@ -224,11 +180,24 @@
       }
     for (NSDictionary *roomDictionary in roomArray) {
       NSNumber *roomId = [roomDictionary objectForKey:@"id"];
-      MSCampfireRoom *newRoom = [[MSCampfireRoom alloc] initWithUID:[roomId integerValue]];
-        //TODO: why key as string instead of num?
-      [_rooms setObject:newRoom forKey:[roomId stringValue]];
-      [engine getRoomInformationFor:[roomId integerValue]];
-      //[newRoom release];
+      NSString *roomName = [roomDictionary objectForKey:@"name"];
+        
+        AIChat *existingChat = [adium.chatController existingChatWithName:[roomId stringValue] onAccount:self];
+        if (existingChat) {
+            AILogWithSignature(@"There is already a room for #%@ - %@", roomId, roomName);
+            [existingChat setDisplayName:roomName];
+        } else {
+            AILogWithSignature(@"Creating a room for %@", roomName);
+            existingChat = [adium.chatController chatWithName:[roomId stringValue]
+                                                   identifier:[roomId stringValue]
+                                                    onAccount:self
+                                             chatCreationInfo:roomDictionary];
+            
+            [existingChat setDisplayName:roomName];
+        }
+        existingChat.hideUserIconAndStatus = YES;
+        AILogWithSignature(@"Bookmarking chat #%@ - %@", roomId, roomName);
+        [adium.contactController bookmarkForChat:existingChat inGroup:[adium.contactController groupWithUID:@"Campfire"]];
     }
   } else {
     [self disconnect];
@@ -241,72 +210,29 @@
   NSDictionary *room = [roomDict objectForKey:@"room"];
   AILogWithSignature(@"Received information for room: %@", room);
   NSNumber *roomId = [room objectForKey:@"id"];
-    
-  
   AIChat *existingChat = [adium.chatController existingChatWithName:[roomId stringValue] onAccount:self];
-  if (existingChat) {
-        AILogWithSignature(@"There is already a room for #%@ - %@", roomId, [room objectForKey:@"name"]);
-        
-    } else {
-        AILogWithSignature(@"Creating a room for %@", [room objectForKey:@"name"]);
-        existingChat = [adium.chatController chatWithName:[roomId stringValue]
-                                               identifier:[roomId stringValue]
-                                                onAccount:self
-                                         chatCreationInfo:room];
-        
-        [existingChat setDisplayName:[room objectForKey:@"name"]];
-    }
-    
-    
-    AIListBookmark *roomBookmark = [adium.contactController existingBookmarkForChatName:[roomId stringValue]
-                                                                              onAccount:self
-                                                                       chatCreationInfo:room];
-  if (roomBookmark) {
-//    AILogWithSignature(@"removing existing bookmark for room #%@ - %@: %@", roomId, [room objectForKey:@"name"], roomBookmark);
-//    [adium.contactController removeBookmark:roomBookmark];
-//    roomBookmark = nil;    
-  } else {
-      AILogWithSignature(@"no existing bookmark");
-      AILogWithSignature(@"bookmarking chat");
-      roomBookmark = [adium.contactController bookmarkForChat:existingChat inGroup:[adium.contactController groupWithUID:@"Campfire"]];
-  }
-  
-
-  MSCampfireRoom *roomR = [_rooms objectForKey:[roomId stringValue]];
   NSArray *users = [room objectForKey:@"users"];
   for (NSDictionary *userDict in users) {
-    NSNumber *contactId = [userDict objectForKey:@"id"];
-    AIListContact *contact = [[AIListContact alloc] initWithUID:[contactId stringValue]
+      NSNumber *contactId = [userDict objectForKey:@"id"];
+      if([contactId integerValue]!= authenticatedUserId) {
+          AIListContact *contact = [[AIListContact alloc] initWithUID:[contactId stringValue]
                                                         account:self
                                                         service:[self service]];
-    [contact setDisplayName:[userDict objectForKey:@"name"]];
-    [self addContact:contact toGroup:nil];
-    [roomR addContactWithUID:[contactId integerValue]];
-    
-    AILogWithSignature(@"Added contact: %@", contact);
-//    [contact release];
+          [contact setDisplayName:[userDict objectForKey:@"name"]];
+
+          [existingChat setAlias:[userDict objectForKey:@"name"] forContact:contact];
+          [existingChat addParticipatingListObject:contact notify:NotifyNow];    
+          AILogWithSignature(@"Added contact: %@", contact);
+          [engine getInformationForUser:[contactId intValue]];
+      }
   }
-  
-/*  
-  [engine joinRoom:[roomId integerValue]];
-  
-  updatedRoomsCount += 1;
-  if (!lastRoomsUpdate) {
-    [self setConnectionProgress:[NSNumber numberWithDouble:(0.3 + (updatedRoomsCount / [_rooms count]) * 0.7)]
-                        message:[NSString stringWithFormat:@"Getting info for room %d/%d", updatedRoomsCount, [_rooms count]]];
-    if (updatedRoomsCount >= [_rooms count]) {
-      lastRoomsUpdate = [[NSDate alloc] init];
-      [self didConnect];
-    }
-  }
- */
 
 }
 
 - (void)didReceiveMessage:(NSDictionary *)message
 {
   NSNumber *roomId = [message objectForKey:@"room_id"];
-  AIChat *chat = [self chatWithName:[roomId stringValue]];
+  AIChat *chat = [adium.chatController existingChatWithName:[roomId stringValue] onAccount:self];
   
   NSAttributedString *msg = [[NSAttributedString alloc] initWithString:[message objectForKey:@"body"]];
   
@@ -335,9 +261,9 @@
       //TODO: make sure this isn't you
     NSNumber *contactId = [message objectForKey:@"user_id"];
       if(authenticatedUserId != [contactId intValue]) {
-          [[_rooms objectForKey:roomId] addContactWithUID:[contactId integerValue]];
           [engine getInformationForUser:[contactId intValue]];
           [chat addParticipatingListObject:[self contactWithUID:[contactId stringValue]] notify:NotifyNow];
+          [chat resortParticipants];
       }
   } else if ([messageType isEqualTo:@"UploadMessage"]) {
     // If this is an upload message, ask the engine to get the upload details
@@ -347,7 +273,7 @@
   } else if ([messageType isEqualTo:@"KickMessage"] || [messageType isEqualTo:@"LeaveMessage"]) {
       NSNumber *contactId = [message objectForKey:@"user_id"];
       [chat removeObject:[self contactWithUID:[contactId stringValue]]];   
-
+      [chat resortParticipants];
   } else {
     NSLog(@"message = %@", message);
   } 
@@ -356,17 +282,19 @@
 -(void)didReceiveInformationForUser:(NSDictionary *)user
 {
     user = [user objectForKey:@"user"];
-//    AILogWithSignature(@"user = %@", user);
+    AILogWithSignature(@"user = %@", user);
   //  AILogWithSignature(@"all keys %@", [user allKeys]);
     //AILogWithSignature(@"all values %@", [user allValues]);
     NSNumber *contactId = [user objectForKey:@"id"];
-    NSString *iconURL = [user objectForKey:@"avatar_url"];
-    AILogWithSignature(@"icon for user %@ is %@", contactId, iconURL);
     // Create the request.
-    NSURLRequest *theRequest = [NSURLRequest requestWithURL:[NSURL URLWithString:iconURL]
+    NSURL* iconURL = [NSURL URLWithString:[user objectForKey:@"avatar_url"]];
+    
+    objc_setAssociatedObject(iconURL, &urlContact, contactId, OBJC_ASSOCIATION_RETAIN);
+    
+    NSURLRequest *theRequest = [NSURLRequest requestWithURL:iconURL
                                                 cachePolicy:NSURLRequestUseProtocolCachePolicy
                                             timeoutInterval:60.0];
-
+    
     
     // Create the connection with the request and start loading the data.
     NSURLDownload  *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest
@@ -375,14 +303,7 @@
         // Set the destination file.
     NSString *localPath = [[NSString alloc] initWithFormat:@"/tmp/%@-avatar.png", contactId];
     [theDownload setDestination:localPath allowOverwrite:YES];
-    [theDownload setValue:contactId forKey:@"contact_id"];
 
-//    } else {
-        // inform the user that the download failed.
-  //  }
-    //NSURL *toFetch = [NSURL URLWithString:iconURL];
-    //AILogWithSignature(@"url %@ ", toFetch);
-        //[toFetch release];
 }
 
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
@@ -400,17 +321,28 @@
 {
     AILogWithSignature(@"download finished");
 
-    NSNumber *contactId = [download valueForKey:@"contact_id"];
+    NSURL* url = [[download request] URL];
+    NSNumber* contactId = objc_getAssociatedObject(url, &urlContact);
+    //I have no idea why this returns an array, but it does.
     AILogWithSignature(@"got avatar for contact %@", contactId);
     NSString *localPath = [[NSString alloc] initWithFormat:@"/tmp/%@-avatar.png", contactId];
     AILogWithSignature(@"loading avatar from %@", localPath);
     // Do something with the data.
-    NSData *iconBinary = [[NSData alloc] initWithContentsOfFile:localPath];
-    //NSData *iconBinary = [[NSData alloc] initWithContentsOfURL:toFetch];
-    AILogWithSignature(@"bytes rx %@", [iconBinary length] );
-    [[self contactWithUID:[contactId stringValue]] setUserIconData:iconBinary];
-    [download release];
+    NSData *iconBinary = [NSData dataWithContentsOfFile:localPath];
+    AILogWithSignature(@"bytes rx %d", [iconBinary length] );
+    //set icon on participant if present in all chats.
+    AIListContact* needsIcon = [adium.contactController existingContactWithService:[self service] 
+                                                                           account:self 
+                                                                               UID:[contactId stringValue]];
+//    AIChat *existingChat = [adium.chatController existingChatWithName:[roomId stringValue] onAccount:self];
+//    NSSet* chatsParticipatingIn = [adium.chatController allGroupChatsContainingContact:(AIListContact *)inContact;
+    [needsIcon setUserIconData:iconBinary];
+    [needsIcon setServersideIconData:iconBinary notify:NotifyNow];
+
+  //  [download release];
 }
+
+
 
 - (void)didReceiveInformationForAuthenticatedUser:(NSDictionary *)user
 {
@@ -425,7 +357,7 @@
   NSNumber *contactId = [data objectForKey:@"user_id"];
   NSAttributedString *msg = [[NSAttributedString alloc] initWithString:[data objectForKey:@"full_url"]];
   NSNumber *roomId = [data objectForKey:@"room_id"];
-  AIChat *chat = [self chatWithName:[roomId stringValue]];
+  AIChat *chat = [adium.chatController existingChatWithName:[roomId stringValue] onAccount:self];
   
   AIContentMessage *contentMessage = [AIContentMessage messageInChat:chat
                                                           withSource:[self contactWithUID:[contactId stringValue]]
