@@ -10,19 +10,19 @@
 		8C0809DE115905FC0085372B /* MSAdiumCampfirePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809D9115905FC0085372B /* MSAdiumCampfirePlugin.m */; };
 		8C0809DF115905FC0085372B /* MSCampfireAccount.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809DB115905FC0085372B /* MSCampfireAccount.m */; };
 		8C0809E0115905FC0085372B /* MSCampfireService.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809DD115905FC0085372B /* MSCampfireService.m */; };
-		8C0809F71159070F0085372B /* DDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809EF1159070F0085372B /* DDAsyncSocket.m */; };
+		8C0809F71159070F0085372B /* DDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809EF1159070F0085372B /* DDAsyncSocket.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		8C0809F91159070F0085372B /* MSCampfireEngine.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809F21159070F0085372B /* MSCampfireEngine.m */; };
 		8C0809FA1159070F0085372B /* MSHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809F41159070F0085372B /* MSHTTPConnection.m */; };
 		8C0809FB1159070F0085372B /* NSNumber+Conversion.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809F61159070F0085372B /* NSNumber+Conversion.m */; };
 		8C080A091159071D0085372B /* NSObject+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C0809FE1159071D0085372B /* NSObject+SBJSON.m */; };
 		8C080A0A1159071D0085372B /* NSString+SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A001159071D0085372B /* NSString+SBJSON.m */; };
-		8C080A0B1159071D0085372B /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A021159071D0085372B /* SBJSON.m */; };
-		8C080A0C1159071D0085372B /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A041159071D0085372B /* SBJsonBase.m */; };
-		8C080A0D1159071D0085372B /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A061159071D0085372B /* SBJsonParser.m */; };
-		8C080A0E1159071D0085372B /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A081159071D0085372B /* SBJsonWriter.m */; };
+		8C080A0B1159071D0085372B /* SBJSON.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A021159071D0085372B /* SBJSON.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		8C080A0C1159071D0085372B /* SBJsonBase.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A041159071D0085372B /* SBJsonBase.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		8C080A0D1159071D0085372B /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A061159071D0085372B /* SBJsonParser.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
+		8C080A0E1159071D0085372B /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A081159071D0085372B /* SBJsonWriter.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		8C080A171159076A0085372B /* MSCampfireAccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C080A161159076A0085372B /* MSCampfireAccountViewController.m */; };
 		8C74D86F117DE75900701FA7 /* NSString+UUID.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C74D86E117DE75900701FA7 /* NSString+UUID.m */; };
-		8C74D872117DE7E100701FA7 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C74D871117DE7E100701FA7 /* NSData+Base64.m */; };
+		8C74D872117DE7E100701FA7 /* NSData+Base64.m in Sources */ = {isa = PBXBuildFile; fileRef = 8C74D871117DE7E100701FA7 /* NSData+Base64.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		8CAA9F6A12BD793300F16CF7 /* campfire-small.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CAA9F6812BD793300F16CF7 /* campfire-small.png */; };
 		8CAA9F6B12BD793300F16CF7 /* campfire.png in Resources */ = {isa = PBXBuildFile; fileRef = 8CAA9F6912BD793300F16CF7 /* campfire.png */; };
 		8CD7DF6611624AB4006A6216 /* MSCampfireRoom.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CD7DF6511624AB4006A6216 /* MSCampfireRoom.m */; };
@@ -402,8 +402,10 @@
 		1DEB913B08733D840010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADIUM = "$(HOME)/Code/adium-1.4";
+				ADIUM = "$(HOME)/spiel/mac/3rd/adium";
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				COPY_PHASE_STRIP = NO;
 				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Debug";
 				GCC_DYNAMIC_NO_PIC = NO;
@@ -416,12 +418,13 @@
 				HEADER_SEARCH_PATHS = "$(ADIUM)/Source";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "\"$(HOME)/Library/Application Support/Adium 2.0/PlugIns/\"";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6.8;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				PRODUCT_NAME = AdiumCampfire;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = AdiumPlugin;
 			};
 			name = Debug;
@@ -430,6 +433,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Debug";
 				GCC_MODEL_TUNING = G5;
@@ -439,12 +444,13 @@
 				HEADER_SEARCH_PATHS = "$(ADIUM)/Source";
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "\"$(HOME)/Library/Application Support/Adium 2.0/PlugIns/\"";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.6.8;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				PRODUCT_NAME = AdiumCampfire;
+				SDKROOT = macosx;
 				WRAPPER_EXTENSION = AdiumPlugin;
 			};
 			name = Release;
@@ -461,14 +467,14 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(ADIUM)/Source";
 				INSTALL_PATH = "\"$(HOME)/Library/Application Support/Adium 2.0/PlugIns/\"";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				WRAPPER_EXTENSION = AdiumPlugin;
 			};
 			name = Debug;
@@ -484,13 +490,13 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = "$(ADIUM)/Source";
 				INSTALL_PATH = "\"$(HOME)/Library/Application Support/Adium 2.0/PlugIns/\"";
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				OTHER_LDFLAGS = (
 					"-undefined",
 					dynamic_lookup,
 				);
 				PREBINDING = NO;
-				SDKROOT = macosx10.6;
+				SDKROOT = "";
 				WRAPPER_EXTENSION = AdiumPlugin;
 			};
 			name = Release;

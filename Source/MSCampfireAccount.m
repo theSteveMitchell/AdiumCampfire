@@ -53,9 +53,7 @@ static char urlContact;
 - (void)dealloc
 {
   [[NSNotificationCenter defaultCenter] removeObserver:self];
-  [engine release];
   
-  [super dealloc];
 }
 
 - (NSString *)defaultServer
@@ -70,7 +68,7 @@ static char urlContact;
     
   [self setConnectionProgress:[NSNumber numberWithDouble:0.3] message:@"Connecting"];
 
-  [engine release]; engine = nil;
+   engine = nil;
 
   engine = [[MSCampfireEngine alloc] initWithDomain:self.UID key:self.passwordWhileConnected delegate:self];
   
@@ -81,8 +79,8 @@ static char urlContact;
 - (void)disconnect
 {
   [super disconnect];
-  [lastRoomsUpdate release]; lastRoomsUpdate = nil;
-  [engine release]; engine = nil;
+   lastRoomsUpdate = nil;
+   engine = nil;
   
   [self didDisconnect];
 }
@@ -309,7 +307,6 @@ static char urlContact;
 - (void)download:(NSURLDownload *)download didFailWithError:(NSError *)error
 {
     // Release the connection.
-    [download release];
     
     // Inform the user.
     AILogWithSignature(@"user icon download failed! Error - %@ %@",

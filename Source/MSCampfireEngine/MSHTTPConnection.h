@@ -38,8 +38,8 @@
   NSData *payload; // request data
 }
 
-@property (retain,nonatomic) id identifier;
-@property (retain,nonatomic) NSData *payload;
+@property (strong,nonatomic) id identifier;
+@property (strong,nonatomic) NSData *payload;
 
 - (MSHTTPConnection *)initWithURL:(NSURL *)aURL 
                            method:(NSString *)aMethod 

@@ -36,7 +36,7 @@
 
 - (MSHTTPConnection *)initWithURL:(NSURL *)aURL
                            method:(NSString*)aMethod
-                         delegate:(NSObject *)aDelegate
+                         delegate:(NSObject <MSHTTPConnectionDelegate > *)aDelegate
 {  
   secure = NO;
   if ([[aURL scheme] isEqualTo:@"https"]) {
@@ -52,8 +52,8 @@
   }
   
   if ((self = [super init])) {
-    url = [aURL retain];
-    method = [aMethod retain];
+    url = aURL;
+    method = aMethod;
     delegate = aDelegate; // deliberate weak reference
     user = nil;
     password = nil;
@@ -82,24 +82,17 @@
 {
   [self disconnect];
   
-  [url release];
-  [method release];
   delegate = nil;
   
-  [socket release];
   if(response) {
     CFRelease(response);
   } 
-  [self setIdentifier:nil];
   
-  [super dealloc];
 }
 
 - (void)setUser:(NSString *)aUser password:(NSString *)aPassword {
-  [user release];
-  [password release];
-  user = [aUser retain];
-  password = [aPassword retain];
+  user = aUser;
+  password = aPassword;
 }
 
 - (void)connect
@@ -166,9 +159,9 @@
 }
 
 - (void)handleInvalidResponse:(NSData *)what {
-  NSString *s = [[[NSString alloc] initWithBytes:[what bytes]
+  NSString *s = [[NSString alloc] initWithBytes:[what bytes]
                                           length:[what length]
-                                        encoding: NSUTF8StringEncoding] autorelease];
+                                        encoding: NSUTF8StringEncoding];
   s = [s stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];  
   NSLog(@"Socket:%p received invalid response:%@", socket, s);
 }
@@ -245,14 +238,14 @@
 			// We have an entire HTTP request header from the client
 			
 			// Extract the response status
-			NSString *status = [NSMakeCollectable(CFHTTPMessageCopyResponseStatusLine(response)) autorelease];
+			NSString *status = CFBridgingRelease(CFHTTPMessageCopyResponseStatusLine(response));
       if (![[status substringToIndex:1] isEqualTo:@"2"]) {
         NSLog(@"Wrong status: %@ for %@", status, identifier);
       }
       
 			// Check for a Content-Length field
 			NSString *contentLength = 
-        [NSMakeCollectable(CFHTTPMessageCopyHeaderFieldValue(response, CFSTR("Content-Length"))) autorelease];
+        CFBridgingRelease(CFHTTPMessageCopyHeaderFieldValue(response, CFSTR("Content-Length")));
 			
       if (contentLength != nil) {
         UInt64 responseContentLength;
@@ -272,9 +265,9 @@
       }
     }
   } else if (tag == HTTP_RESPONSE_BODY) {
-    NSString *s = [[[NSString alloc] initWithBytes:[data bytes]
+    NSString *s = [[NSString alloc] initWithBytes:[data bytes]
                                             length:[data length]
-                                          encoding: NSUTF8StringEncoding] autorelease];
+                                          encoding: NSUTF8StringEncoding];
     s = [s stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];  
     NSLog(@"onConnection:%p didReceiveBody:%@", self, s);    
     if ([delegate respondsToSelector:@selector(connection:didReceiveBody:)]) {
@@ -283,9 +276,9 @@
     [socket disconnect];
     return;
   } else if (tag == HTTP_RESPONSE_BODY_LINE) {
-    NSString *s = [[[NSString alloc] initWithBytes:[data bytes]
+    NSString *s = [[NSString alloc] initWithBytes:[data bytes]
                                             length:[data length]
-                                          encoding: NSUTF8StringEncoding] autorelease];
+                                          encoding: NSUTF8StringEncoding];
     s = [s stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];  
     
    // NSLog(@"onConnection:%p didReceiveLine:%@", self, s);

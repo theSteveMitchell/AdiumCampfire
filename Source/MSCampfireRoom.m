@@ -22,11 +22,6 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [contactUIDs release];
-  [super dealloc];
-}
 
 - (void)addContactWithUID:(NSInteger)anUID
 {

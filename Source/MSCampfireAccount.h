@@ -17,7 +17,7 @@
   NSInteger authenticatedUserId;
 }
 
-@property (readonly, nonatomic) NSString *defaultServer;
+@property (unsafe_unretained, readonly, nonatomic) NSString *defaultServer;
 
 - (void)updateCampfireChat:(AIChat *)campfireChat;
 /*- (AIChat *)chatWithName:(NSString *)name;*/
