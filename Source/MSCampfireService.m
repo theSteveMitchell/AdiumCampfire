@@ -34,7 +34,7 @@
 
 // Service description
 - (NSString *)serviceCodeUniqueID{
-	return @"campfire";
+	return @"Campfire";
 }
 - (NSString *)serviceID{
 	return @"Campfire";
@@ -114,9 +114,9 @@
 - (NSString *)pathForDefaultServiceIconOfType:(AIServiceIconType)iconType
 {
 	if ((iconType == AIServiceIconSmall) || (iconType == AIServiceIconList)) {
-		return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"twitter-small"];
+		return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"campfire-small"];
 	} else {
-		return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"twitter"];		
+		return [[NSBundle bundleForClass:[self class]] pathForImageResource:@"campfire"];		
 	}
 }
 

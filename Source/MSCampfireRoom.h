@@ -10,13 +10,15 @@
 
 
 @interface MSCampfireRoom : NSObject {
+
   NSInteger uid;
   NSMutableArray *contactUIDs;
-}
+    NSDictionary *usersByUID;
+} 
 
 - (MSCampfireRoom *)initWithUID:(NSInteger)anUID;
-
 - (void)addContactWithUID:(NSInteger)anUID;
+- (void)removeContactWithUID:(NSInteger)toRemove;
 - (NSArray *)contactUIDs;
 
 @end
