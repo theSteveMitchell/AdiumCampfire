@@ -132,7 +132,7 @@
   if (payload) {
     headers = [headers stringByAppendingString:[NSString stringWithFormat:@""
       "Content-Type: application/json\r\n"
-      "Content-Length: %d\r\n",
+      "Content-Length: %ld\r\n",
       [payload length]]];
   }
   headers = [headers stringByAppendingString:@"\r\n"];

@@ -30,6 +30,8 @@
 		8CEF459B11F36F2B00F96727 /* CompilerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 8CEF459A11F36F2B00F96727 /* CompilerTest.m */; };
 		8D5B49B0048680CD000E48DA /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 089C167DFE841241C02AAC07 /* InfoPlist.strings */; };
 		8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */; };
+		E039C00315FA59FA00D2436A /* Adium.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E039C00215FA59FA00D2436A /* Adium.framework */; };
+		E039C00515FA5A2C00D2436A /* AIUtilities.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E039C00415FA5A2C00D2436A /* AIUtilities.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -94,6 +96,8 @@
 		8CEF459A11F36F2B00F96727 /* CompilerTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CompilerTest.m; sourceTree = "<group>"; };
 		8D5B49B7048680CD000E48DA /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D2F7E65807B2D6F200F64583 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = /System/Library/Frameworks/CoreData.framework; sourceTree = "<absolute>"; };
+		E039C00215FA59FA00D2436A /* Adium.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Adium.framework; sourceTree = "<group>"; };
+		E039C00415FA5A2C00D2436A /* AIUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = AIUtilities.framework; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -109,6 +113,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D5B49B4048680CD000E48DA /* Cocoa.framework in Frameworks */,
+				E039C00315FA59FA00D2436A /* Adium.framework in Frameworks */,
+				E039C00515FA5A2C00D2436A /* AIUtilities.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -155,6 +161,8 @@
 		1058C7ACFEA557BF11CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				E039C00415FA5A2C00D2436A /* AIUtilities.framework */,
+				E039C00215FA59FA00D2436A /* Adium.framework */,
 				1058C7ADFEA557BF11CA2CBB /* Cocoa.framework */,
 			);
 			name = "Linked Frameworks";
@@ -405,15 +413,18 @@
 		1DEB913B08733D840010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADIUM = "$(HOME)/spiel/mac/3rd/adium";
+				ADIUM = "~/workspace/adium/";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Debug";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(ADIUM)/build/Debug",
+					"\"$(SRCROOT)\"",
+				);
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_MODEL_TUNING = G5;
+				GCC_MODEL_TUNING = "";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AdiumCampfire_Prefix.pch;
@@ -435,13 +446,17 @@
 		1DEB913C08733D840010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ADIUM = "~/workspace/adium/";
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_ENABLE_OBJC_ARC = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Debug";
-				GCC_MODEL_TUNING = G5;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(ADIUM)/build/Debug",
+					"\"$(SRCROOT)\"",
+				);
+				GCC_MODEL_TUNING = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = AdiumCampfire_Prefix.pch;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -462,7 +477,7 @@
 		1DEB913F08733D840010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADIUM = "$(HOME)/Code/adium-1.4";
+				ADIUM = "~/workspace/adium/";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Debug";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
@@ -485,7 +500,7 @@
 		1DEB914008733D840010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ADIUM = "$(HOME)/Projekty/Adium";
+				ADIUM = "~/workspace/adium/";
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
 				FRAMEWORK_SEARCH_PATHS = "$(ADIUM)/build/Release";
 				GCC_C_LANGUAGE_STANDARD = gnu99;

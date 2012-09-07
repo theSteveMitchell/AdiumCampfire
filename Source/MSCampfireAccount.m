@@ -244,7 +244,7 @@ static char urlContact;
   NSString *messageType = [message objectForKey:@"type"];
   if ([messageType isEqualTo:@"TextMessage"] || [messageType isEqualTo:@"PasteMessage"]) {
     NSNumber *contactId = [message objectForKey:@"user_id"];
-    AILogWithSignature(@"My ID=%d, Sender ID=%@", authenticatedUserId, contactId);
+    AILogWithSignature(@"My ID=%ld, Sender ID=%@", authenticatedUserId, contactId);
     if( authenticatedUserId != [contactId integerValue] ) {
       AIContentMessage *contentMessage = [AIContentMessage messageInChat:chat
                                                               withSource:[self contactWithUID:[contactId stringValue]]
@@ -296,7 +296,7 @@ static char urlContact;
     
     // Create the connection with the request and start loading the data.
     NSURLDownload  *theDownload = [[NSURLDownload alloc] initWithRequest:theRequest
-                                                                delegate:self];
+                                                                delegate:(id)self];
   //  if (theDownload) {
         // Set the destination file.
     NSString *localPath = [[NSString alloc] initWithFormat:@"/tmp/%@-avatar.png", contactId];
@@ -326,7 +326,7 @@ static char urlContact;
     AILogWithSignature(@"loading avatar from %@", localPath);
     // Do something with the data.
     NSData *iconBinary = [NSData dataWithContentsOfFile:localPath];
-    AILogWithSignature(@"bytes rx %d", [iconBinary length] );
+    AILogWithSignature(@"bytes rx %ld", [iconBinary length] );
     //set icon on participant if present in all chats.
     AIListContact* needsIcon = [adium.contactController existingContactWithService:[self service] 
                                                                            account:self 
@@ -345,7 +345,7 @@ static char urlContact;
 {
   NSString *authenticatedUserIdAsString = [[user objectForKey:@"user"] objectForKey:@"id"];
   authenticatedUserId = [authenticatedUserIdAsString integerValue];
-  AILogWithSignature(@"Authenticated User ID = %d", authenticatedUserId);
+  AILogWithSignature(@"Authenticated User ID = %ld", authenticatedUserId);
 }
 
 - (void)didReceiveUpload:(NSDictionary *)upload
